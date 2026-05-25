@@ -6,7 +6,14 @@ export const Header = styled(Box)({
   padding: '10px',
   display: 'flex',
   alignItems: 'center',
+  justifyContent: 'space-between',
   gap: '25px',
+});
+
+export const HeaderSpilt = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '20px',
 });
 
 export const Date = styled('span')(({ isToday }) => ({

@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import Header from '../components/Header';
-import { days } from '../constants/calender';
+import { DAYS } from '../constants/calender';
 import { DateDisplayGrid, Date as DateText } from '../styles';
 
 const Calendar = () => {
   const [value, setValue] = useState(null);
-  console.log(new Date(value));
 
-  const now = value ? new Date(value) : new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
+  const activeDate = value ? new Date(value) : new Date();
+  const year = activeDate.getFullYear();
+  const month = activeDate.getMonth();
   const firstDayOfMonth = new Date(year, month, 1);
 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -24,19 +23,16 @@ const Calendar = () => {
     allDays.push(new Date(year, month, i));
   }
 
-  const totalDaysNeeded = allDays.length <= 35 ? 35 : 42;
-  let nextMonthDay = 1;
-
-  while (allDays.length < totalDaysNeeded) {
-    allDays.push(new Date(year, month + 1, nextMonthDay));
-    nextMonthDay++;
+  const endPaddingCount = new Date(year, month + 1, 0).getDay();
+  for (let i = endPaddingCount + 1; i <= 6; i++) {
+    allDays.push(new Date(year, month + 1, i - endPaddingCount));
   }
-  console.log(value);
+
   return (
     <div>
       <Header setValue={setValue} value={value} />
       <DateDisplayGrid>
-        {days.map((day, index) => (
+        {DAYS.map((day, index) => (
           <div key={index} style={{ padding: '12px 10px', border: '1px solid #cccccc9e' }}>
             {day}
           </div>
