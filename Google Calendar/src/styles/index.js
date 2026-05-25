@@ -16,15 +16,15 @@ export const HeaderSpilt = styled(Box)({
   gap: '20px',
 });
 
-export const Date = styled('span')(({ isToday }) => ({
+export const Date = styled('span')(({ isToday, isActive }) => ({
   fontSize: '24px',
   height: '80px',
   width: '80px',
   padding: '20px',
   borderRadius: '50%',
   textAlign: 'center',
-  color: isToday ? 'white' : '#333',
-  backgroundColor: isToday ? '#7066ff' : '#fff',
+  color: isActive ? (isToday ? 'white' : '#333') : '#0000006b',
+  backgroundColor:  isActive ? isToday ? '#7066ff' : '#fff':"#ffffff00",
 }));
 
 export const DateDisplayGrid = styled(Box)({
