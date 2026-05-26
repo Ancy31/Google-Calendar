@@ -1,4 +1,4 @@
-import { Box, Chip, IconButton, Typography } from '@mui/material';
+import {  Chip, IconButton, Typography } from '@mui/material';
 import { MdNavigateNext } from 'react-icons/md';
 import { GrFormPrevious } from 'react-icons/gr';
 import { Header as HeaderContainer, HeaderSpilt } from '../styles';
