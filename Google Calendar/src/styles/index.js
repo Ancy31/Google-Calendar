@@ -2,34 +2,50 @@ import styled from '@emotion/styled';
 import { Box } from '@mui/material';
 
 export const Header = styled(Box)({
-  boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.18)',
-  padding: '10px',
+  padding: '8px 24px',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: '25px',
+  borderBottom: '1px solid #dadce0',
+  height: '64px',
+  backgroundColor: '#fff',
 });
 
 export const HeaderSpilt = styled(Box)({
   display: 'flex',
   alignItems: 'center',
-  gap: '20px',
+  gap: '12px',
 });
 
-export const Date = styled('span')(({ isToday, isActive }) => ({
-  fontSize: '24px',
-  height: '80px',
-  width: '80px',
-  padding: '20px',
+export const Date = styled('div')(({ isToday, isActive }) => ({
+  fontSize: '12px',
+  fontWeight: 500,
+  height: '28px',
+  width: '28px',
+  lineHeight: '28px',
   borderRadius: '50%',
   textAlign: 'center',
-  color: isActive ? (isToday ? 'white' : '#333') : '#0000006b',
-  backgroundColor:  isActive ? isToday ? '#7066ff' : '#fff':"#ffffff00",
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  color: isActive ? (isToday ? '#fff' : '#3c4043') : '#70757a',
+  backgroundColor: isActive ? (isToday ? '#1a73e8' : 'transparent') : 'transparent',
+  margin: '4px auto',
+  '&:hover': {
+    backgroundColor: isActive && !isToday ? '#f1f3f4' : isActive && isToday ? '#1a73e8' : 'transparent',
+  }
 }));
 
 export const DateDisplayGrid = styled(Box)({
   display: 'grid',
-  gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr 1fr',
-  width: '99.9vw',
-  heigth: '90vh',
+  gridTemplateColumns: 'repeat(7, 1fr)',
+  width: '100%',
+});
+
+export const CalendarContainer = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100vh',
+  width: '100vw',
+  overflow: 'hidden',
 });

@@ -4,7 +4,7 @@ export const handleToken = async () => {
   try {
     const tokenClient = window.google.accounts.oauth2.initTokenClient({
       client_id: '677252180672-mtklniaflulv0i9cvtm92rgp50vmie5e.apps.googleusercontent.com',
-      scope: 'https://www.googleapis.com/auth/calendar.readonly',
+      scope: 'https://www.googleapis.com/auth/calendar.events',
       callback: (tokenResponse) => {
         if (tokenResponse && tokenResponse.access_token) {
           localStorage.setItem('Token', JSON.stringify(tokenResponse.access_token));
@@ -45,6 +45,39 @@ export const calenderEventsApi = async (year, month, accessToken) => {
     return [];
   } catch (err) {
     console.error('Error fetching events:', err);
+    throw err;
+  }
+};
+
+export const saveCalendarEventApi = async (eventDetails, accessToken, eventId = null) => {
+  if (!accessToken) {
+    throw new Error('No access token found. Please login again.');
+  }
+
+  const url = eventId
+    ? `https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}`
+    : 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
+  const method = eventId ? 'PUT' : 'POST';
+  const actionText = eventId ? 'update' : 'create';
+
+  try {
+    const res = await fetch(url, {
+      method,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(eventDetails),
+    });
+    const data = await res.json();
+    
+    if (!res.ok) {
+      throw new Error(data.error?.message || `Failed to ${actionText} event on Google Calendar`);
+    }
+    
+    return data;
+  } catch (err) {
+    console.error(`Error ${actionText}ing event:`, err);
     throw err;
   }
 };
