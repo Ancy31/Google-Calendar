@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Header from '../components/Header';
 import { DAYS } from '../constants/calender';
@@ -8,9 +8,9 @@ import { calenderEventsApi } from '../api/config';
 import { Chip, CircularProgress } from '@mui/material';
 
 const Calendar = () => {
-  const [value, setValue] = useState(null);
+  const [value, setValue] = useState(new Date());
+  const [activeDate, setActiveDate] = useState(() => (value ? new Date(value) : new Date()));
 
-  const activeDate = value ? new Date(value) : new Date();
   const year = activeDate.getFullYear();
   const month = activeDate.getMonth();
 
@@ -39,15 +39,23 @@ const Calendar = () => {
     queryKey: ['AllDays', year, month],
     queryFn: fetchAllDays,
     staleTime: 1000 * 60 * 5,
+    enabled: !!year && !!month,
   });
 
   const { data: events, isLoading } = useQuery({
-    queryKey: ['events', { token, year, month }],
+    queryKey: ['events', token, year, month, activeDate],
     queryFn: () => calenderEventsApi(year, month, token),
-    enabled: !!token,
-    staleTime: 0,
+    enabled: !!token && !!year && !!month,
+    staleTime: 1000 * 60 * 60,
   });
 
+  useEffect(() => {
+    if (value) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setActiveDate(new Date(value));
+    }
+  }, [value]);
+  
   if (isLoading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', padding: '50px' }}>
