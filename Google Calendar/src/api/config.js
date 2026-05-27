@@ -1,4 +1,6 @@
-export const handleToken = () => {
+import { ROUTE_PATHS } from '../routes/routes';
+
+export const handleToken = async () => {
   try {
     const tokenClient = window.google.accounts.oauth2.initTokenClient({
       client_id: '677252180672-mtklniaflulv0i9cvtm92rgp50vmie5e.apps.googleusercontent.com',
@@ -6,10 +8,11 @@ export const handleToken = () => {
       callback: (tokenResponse) => {
         if (tokenResponse && tokenResponse.access_token) {
           localStorage.setItem('Token', JSON.stringify(tokenResponse.access_token));
+          window.location.href = ROUTE_PATHS.calendar;
         }
       },
     });
-    tokenClient.requestAccessToken();
+    await tokenClient.requestAccessToken();
   } catch (err) {
     console.error('Error initializing token client:', err);
   }

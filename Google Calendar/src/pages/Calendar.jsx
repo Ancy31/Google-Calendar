@@ -42,9 +42,10 @@ const Calendar = () => {
   });
 
   const { data: events, isLoading } = useQuery({
-    queryKey: ['events', token, year, month],
+    queryKey: ['events', { token, year, month }],
     queryFn: () => calenderEventsApi(year, month, token),
     enabled: !!token,
+    staleTime: 0,
   });
 
   if (isLoading) {
