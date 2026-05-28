@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
+import { Badge, Box, Chip, CircularProgress } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import Header from '../components/Header';
-import { DAYS } from '../constants/calender';
-import { DateDisplayGrid, Date as DateText, CalendarContainer } from '../styles';
+import { useEffect, useState } from 'react';
 import '../api/config';
-import { calenderEventsApi } from '../api/config';
-import { Chip, CircularProgress, Box } from '@mui/material';
+import { calendarHolidaysApi, calenderEventsApi } from '../api/config';
+import Header from '../components/Header';
 import Modal from '../components/Modal';
+import { DAYS } from '../constants/calender';
+import { CalendarContainer, DateDisplayGrid, Date as DateText } from '../styles';
 
 const Calendar = () => {
   const [value, setValue] = useState(new Date());
@@ -22,10 +22,8 @@ const Calendar = () => {
   const startPaddingCount = firstDayOfMonth.getDay() === 0 ? 6 : firstDayOfMonth.getDay() - 1;
   const lastDayOfMonth = new Date(year, month + 1, 0);
   const endPaddingCount = lastDayOfMonth.getDay();
-  const token = localStorage.getItem('Token');
+  const token = JSON.parse(localStorage.getItem('Token'));
 
-  // const events = JSON.parse(localStorage.getItem('calenderEvents')) || [];
-// console.log(events)
   const fetchAllDays = () => {
     const allDays = [];
     for (let i = startPaddingCount; i > 0; i--) {
@@ -53,13 +51,20 @@ const Calendar = () => {
     enabled: !!token && !!year && !!month,
     staleTime: 1000 * 60 * 60,
   });
+  const { data: holidays } = useQuery({
+    queryKey: ['holidays', token],
+    queryFn: () => calendarHolidaysApi(token),
+    enabled: !!token,
+    staleTime: 1000 * 60 * 60,
+  });
 
   useEffect(() => {
     if (value) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveDate(new Date(value));
     }
   }, [value]);
-  
+
   if (isLoading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', padding: '50px' }}>
@@ -73,13 +78,31 @@ const Calendar = () => {
       <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'hidden' }}>
         <DateDisplayGrid sx={{ borderBottom: '1px solid #dadce0', flexShrink: 0 }}>
           {DAYS.map((day, index) => (
-            <div key={index} style={{ padding: '12px 0', textAlign: 'center', fontSize: '11px', fontWeight: 500, color: '#70757a', textTransform: 'uppercase', borderRight: index < 6 ? '1px solid #dadce0' : 'none' }}>
+            <div
+              key={index}
+              style={{
+                padding: '12px 0',
+                textAlign: 'center',
+                fontSize: '11px',
+                fontWeight: 500,
+                color: '#70757a',
+                textTransform: 'uppercase',
+                borderRight: index < 6 ? '1px solid #dadce0' : 'none',
+              }}
+            >
               {day}
             </div>
           ))}
         </DateDisplayGrid>
 
-        <DateDisplayGrid sx={{ overflowY: 'auto', flexGrow: 1, alignContent: 'start', gridAutoRows: 'minmax(120px, 1fr)' }}>
+        <DateDisplayGrid
+          sx={{
+            overflowY: 'auto',
+            flexGrow: 1,
+            alignContent: 'start',
+            gridAutoRows: 'minmax(120px, 1fr)',
+          }}
+        >
           {data?.map((dateObj, index) => {
             const today = new Date();
             const isToday =
@@ -108,7 +131,14 @@ const Calendar = () => {
                   {dateObj?.date?.getDate()}
                 </DateText>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginTop: '4px', overflowY: 'auto', flexGrow: 1 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: '10px',
+                    marginTop: '4px',
+                    flexGrow: 1,
+                  }}
+                >
                   {events?.map((event) => {
                     const dateStr = event?.start?.dateTime;
                     const date = new Date(dateStr);
@@ -118,16 +148,71 @@ const Calendar = () => {
                       dateObj?.date?.getDate() === date.getDate();
 
                     return isValid ? (
-                      <Chip 
-                        key={event?.id || 'event'} 
-                        label={event?.summary} 
-                        size="small" 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedEvent(event);
-                          setActiveModalDate(isoDate);
+                      <div key={event?.id || 'event'}>
+                        <Badge
+                          color="secondary"
+                          variant="dot"
+                          anchorOrigin={{
+                            vertical: 'top',
+                            horizontal: 'left',
+                          }}
+                        >
+                          <Chip
+                            key={event?.id || 'event'}
+                            label={event?.summary}
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedEvent(event);
+                              setActiveModalDate(isoDate);
+                            }}
+                            sx={{
+                              backgroundColor: '#fefefe00',
+                              color: '#000000',
+                              fontSize: '12px',
+                              height: '22px',
+                              width: 'fit-content',
+                              '& .MuiChip-label': { padding: '0 8px' },
+                              borderRadius: '4px',
+                              justifyContent: 'flex-start',
+                            }}
+                          />
+                        </Badge>
+                      </div>
+                    ) : null;
+                  })}
+                </div>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2px',
+                    marginTop: '4px',
+                    overflowY: 'auto',
+                    flexGrow: 1,
+                  }}
+                >
+                  {holidays?.map((holiday, index) => {
+                    const holidayDateStr = holiday?.start?.date;
+                    const dateObjStr = isoDate?.split('T')[0];
+                    console.log(holidayDateStr);
+                    const isValid =
+                      holidayDateStr && dateObjStr && holidayDateStr.trim() === dateObjStr.trim(); // const dateStr = holiday?.start?.date;
+                    console.log(isValid);
+                    return isValid ? (
+                      <Chip
+                        key={`holiday- ${index}`}
+                        label={holiday?.summary}
+                        size="small"
+                        sx={{
+                          backgroundColor: '#0f990f',
+                          color: '#fff',
+                          fontSize: '12px',
+                          height: '22px',
+                          '& .MuiChip-label': { padding: '0 8px' },
+                          borderRadius: '4px',
+                          justifyContent: 'flex-start',
                         }}
-                        sx={{ backgroundColor: '#039be5', color: '#fff', fontSize: '12px', height: '22px', '& .MuiChip-label': { padding: '0 8px' }, borderRadius: '4px', justifyContent: 'flex-start' }} 
                       />
                     ) : null;
                   })}
@@ -145,7 +230,7 @@ const Calendar = () => {
                     setIsModalOpen={() => {
                       setActiveModalDate(null);
                       setSelectedEvent(null);
-                    }} 
+                    }}
                     selectedEvent={selectedEvent}
                   />
                 )}

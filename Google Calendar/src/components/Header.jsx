@@ -1,9 +1,9 @@
 import { Button, IconButton, Typography } from '@mui/material';
-import { MdNavigateNext } from 'react-icons/md';
-import { GrFormPrevious } from 'react-icons/gr';
-import { Header as HeaderContainer, HeaderSpilt } from '../styles';
 import { useEffect, useState } from 'react';
+import { GrFormPrevious } from 'react-icons/gr';
+import { MdNavigateNext } from 'react-icons/md';
 import { MONTHS } from '../constants/calender';
+import { Header as HeaderContainer, HeaderSpilt } from '../styles';
 
 const Header = ({ value, setValue }) => {
   const [activeDate, setActiveDate] = useState({ month: '', year: '' });
@@ -38,6 +38,7 @@ const Header = ({ value, setValue }) => {
       const [yearStr, monthStr] = value.split('-');
       const year = parseInt(yearStr, 10);
       const month = parseInt(monthStr, 10) - 1;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveDate({ month: MONTHS[month], year: year });
     }
   }, [value]);

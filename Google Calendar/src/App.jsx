@@ -1,8 +1,8 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { APP_ROUTES } from './routes/index.js';
-import NotFound from './pages/NotFound.jsx';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import NotFound from './pages/NotFound.jsx';
+import { APP_ROUTES } from './routes/index.js';
 
 function App() {
   const queryClient = new QueryClient({});
