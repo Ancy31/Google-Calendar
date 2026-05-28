@@ -1,4 +1,4 @@
-import { Badge, Box, Chip, CircularProgress } from '@mui/material';
+import { Badge, Box, CircularProgress } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import '../api/config';
@@ -6,7 +6,16 @@ import { calendarHolidaysApi, calenderEventsApi } from '../api/config';
 import Header from '../components/Header';
 import Modal from '../components/Modal';
 import { DAYS } from '../constants/calender';
-import { CalendarContainer, DateDisplayGrid, Date as DateText } from '../styles';
+import {
+  CalendarContainer,
+  DateDisplayGrid,
+  Date as DateText,
+  CustomHolidayChip,
+  CustomEventChip,
+  Dayscontainer,
+  EventContainer,
+  HolidayContainer,
+} from '../styles';
 
 const Calendar = () => {
   const [value, setValue] = useState(new Date());
@@ -78,20 +87,7 @@ const Calendar = () => {
       <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'hidden' }}>
         <DateDisplayGrid sx={{ borderBottom: '1px solid #dadce0', flexShrink: 0 }}>
           {DAYS.map((day, index) => (
-            <div
-              key={index}
-              style={{
-                padding: '12px 0',
-                textAlign: 'center',
-                fontSize: '11px',
-                fontWeight: 500,
-                color: '#70757a',
-                textTransform: 'uppercase',
-                borderRight: index < 6 ? '1px solid #dadce0' : 'none',
-              }}
-            >
-              {day}
-            </div>
+            <Dayscontainer key={index}>{day}</Dayscontainer>
           ))}
         </DateDisplayGrid>
 
@@ -99,11 +95,9 @@ const Calendar = () => {
           sx={{
             overflowY: 'auto',
             flexGrow: 1,
-            alignContent: 'start',
-            gridAutoRows: 'minmax(120px, 1fr)',
           }}
         >
-          {data?.map((dateObj, index) => {
+          {data?.map((dateObj) => {
             const today = new Date();
             const isToday =
               dateObj?.date?.getFullYear() === today.getFullYear() &&
@@ -113,19 +107,10 @@ const Calendar = () => {
             const isoDate = dateObj?.date?.toISOString();
 
             return (
-              <div
+              <EventContainer
                 key={dateObj?.date?.toISOString()}
+                isActive={dateObj?.isActive}
                 onClick={() => setActiveModalDate(isoDate)}
-                style={{
-                  padding: '4px',
-                  borderRight: (index + 1) % 7 !== 0 ? '1px solid #dadce0' : 'none',
-                  borderBottom: '1px solid #dadce0',
-                  backgroundColor: dateObj?.isActive ? '#fff' : '#f8f9fa',
-                  position: 'relative',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}
               >
                 <DateText isToday={isToday} isActive={dateObj?.isActive}>
                   {dateObj?.date?.getDate()}
@@ -157,7 +142,7 @@ const Calendar = () => {
                             horizontal: 'left',
                           }}
                         >
-                          <Chip
+                          <CustomEventChip
                             key={event?.id || 'event'}
                             label={event?.summary}
                             size="small"
@@ -166,57 +151,29 @@ const Calendar = () => {
                               setSelectedEvent(event);
                               setActiveModalDate(isoDate);
                             }}
-                            sx={{
-                              backgroundColor: '#fefefe00',
-                              color: '#000000',
-                              fontSize: '12px',
-                              height: '22px',
-                              width: 'fit-content',
-                              '& .MuiChip-label': { padding: '0 8px' },
-                              borderRadius: '4px',
-                              justifyContent: 'flex-start',
-                            }}
                           />
                         </Badge>
                       </div>
                     ) : null;
                   })}
                 </div>
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '2px',
-                    marginTop: '4px',
-                    overflowY: 'auto',
-                    flexGrow: 1,
-                  }}
-                >
+                <HolidayContainer>
                   {holidays?.map((holiday, index) => {
                     const holidayDateStr = holiday?.start?.date;
                     const dateObjStr = isoDate?.split('T')[0];
                     console.log(holidayDateStr);
                     const isValid =
-                      holidayDateStr && dateObjStr && holidayDateStr.trim() === dateObjStr.trim(); // const dateStr = holiday?.start?.date;
+                      holidayDateStr && dateObjStr && holidayDateStr.trim() === dateObjStr.trim();
                     console.log(isValid);
                     return isValid ? (
-                      <Chip
+                      <CustomHolidayChip
                         key={`holiday- ${index}`}
                         label={holiday?.summary}
                         size="small"
-                        sx={{
-                          backgroundColor: '#0f990f',
-                          color: '#fff',
-                          fontSize: '12px',
-                          height: '22px',
-                          '& .MuiChip-label': { padding: '0 8px' },
-                          borderRadius: '4px',
-                          justifyContent: 'flex-start',
-                        }}
                       />
                     ) : null;
                   })}
-                </div>
+                </HolidayContainer>
 
                 {activeModalDate === isoDate && (
                   <Modal
@@ -234,7 +191,7 @@ const Calendar = () => {
                     selectedEvent={selectedEvent}
                   />
                 )}
-              </div>
+              </EventContainer>
             );
           })}
         </DateDisplayGrid>

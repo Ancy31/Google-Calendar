@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Box } from '@mui/material';
+import { Box, Chip } from '@mui/material';
 
 export const Header = styled(Box)({
   padding: '8px 24px',
@@ -32,8 +32,9 @@ export const Date = styled('div')(({ isToday, isActive }) => ({
   backgroundColor: isActive ? (isToday ? '#1a73e8' : 'transparent') : 'transparent',
   margin: '4px auto',
   '&:hover': {
-    backgroundColor: isActive && !isToday ? '#f1f3f4' : isActive && isToday ? '#1a73e8' : 'transparent',
-  }
+    backgroundColor:
+      isActive && !isToday ? '#f1f3f4' : isActive && isToday ? '#1a73e8' : 'transparent',
+  },
 }));
 
 export const DateDisplayGrid = styled(Box)({
@@ -49,3 +50,49 @@ export const CalendarContainer = styled(Box)({
   width: '100vw',
   overflow: 'hidden',
 });
+
+export const CustomEventChip = styled(Chip)({
+  backgroundColor: '#fefefe00',
+  color: '#000000',
+  fontSize: '12px',
+  height: '22px',
+  width: 'fit-content',
+  '& .MuiChip-label': { padding: '0 8px' },
+  borderRadius: '4px',
+  justifyContent: 'flex-start',
+});
+export const CustomHolidayChip = styled(Chip)({
+  backgroundColor: '#0f990f',
+  color: '#fff',
+  fontSize: '12px',
+  height: '22px',
+  '& .MuiChip-label': { padding: '0 8px' },
+  borderRadius: '4px',
+  justifyContent: 'flex-start',
+});
+
+export const Dayscontainer = styled(Box)({
+  padding: '12px 0',
+  textAlign: 'center',
+  fontSize: '11px',
+  fontWeight: 500,
+  color: '#70757a',
+  textTransform: 'uppercase',
+});
+export const HolidayContainer = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '2px',
+  marginTop: '4px',
+  overflowY: 'auto',
+  flexGrow: 1,
+});
+export const EventContainer = styled(Box)(({ isActive }) => ({
+  padding: '4px',
+  borderBottom: '1px solid #dadce0',
+  backgroundColor: isActive ? '#fff' : '#f8f9fa',
+  position: 'relative',
+  cursor: 'pointer',
+  display: 'flex',
+  flexDirection: 'column',
+}));
