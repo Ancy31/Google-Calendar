@@ -71,14 +71,15 @@ export const CustomHolidayChip = styled(Chip)({
   justifyContent: 'flex-start',
 });
 
-export const Dayscontainer = styled(Box)({
+export const Dayscontainer = styled(Box)(({ index }) => ({
   padding: '12px 0',
   textAlign: 'center',
   fontSize: '11px',
   fontWeight: 500,
   color: '#70757a',
+  borderRight: index < 6 ? '1px solid #dadce0' : 'none',
   textTransform: 'uppercase',
-});
+}));
 export const HolidayContainer = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
@@ -87,9 +88,10 @@ export const HolidayContainer = styled(Box)({
   overflowY: 'auto',
   flexGrow: 1,
 });
-export const EventContainer = styled(Box)(({ isActive }) => ({
+export const EventContainer = styled(Box)(({ isActive, index }) => ({
   padding: '4px',
   borderBottom: '1px solid #dadce0',
+  borderRight: (index + 1) % 7 !== 0 ? '1px solid #dadce0' : 'none',
   backgroundColor: isActive ? '#fff' : '#f8f9fa',
   position: 'relative',
   cursor: 'pointer',

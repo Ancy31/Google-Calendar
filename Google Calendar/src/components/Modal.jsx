@@ -6,9 +6,9 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { saveCalendarEventApi } from '../api/config';
+import { postApiServices, updateApiServices } from '../api/api';
 
 const Modal = ({ date, open, onClose, label, selectedEvent }) => {
   const style = {
@@ -50,22 +50,24 @@ const Modal = ({ date, open, onClose, label, selectedEvent }) => {
     }
   }, [selectedEvent, open]);
 
-  const queryClient = useQueryClient();
-
   const mutation = useMutation({
     mutationFn: (eventDetails) => {
-      const token = JSON.parse(localStorage.getItem('Token'));
       const eventId = selectedEvent?.id || null;
-      return saveCalendarEventApi(eventDetails, token, eventId);
+      return eventId
+        ? updateApiServices(
+            `https://www.googleapis.com/calendar/v3/calendars/primary/events`,
+            eventId,
+            JSON.stringify(eventDetails),
+          )
+        : postApiServices(
+            'https://www.googleapis.com/calendar/v3/calendars/primary/events',
+            JSON.stringify(eventDetails),
+          );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['events'] });
       onClose();
       setValue('');
       setEventName('');
-    },
-    onError: (error) => {
-      console.error('Failed to save event', error);
     },
   });
 

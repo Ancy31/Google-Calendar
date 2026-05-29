@@ -2,7 +2,6 @@ import { Badge, Box, CircularProgress } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import '../api/config';
-import { calendarHolidaysApi, calenderEventsApi } from '../api/config';
 import Header from '../components/Header';
 import Modal from '../components/Modal';
 import { DAYS } from '../constants/calender';
@@ -16,6 +15,7 @@ import {
   EventContainer,
   HolidayContainer,
 } from '../styles';
+import { getApiServices } from '../api/api';
 
 const Calendar = () => {
   const [value, setValue] = useState(new Date());
@@ -47,6 +47,10 @@ const Calendar = () => {
     return allDays;
   };
 
+  const timeMin = new Date(year, month, 1).toISOString();
+  const timeMax = new Date(year, month + 1, 0).toISOString();
+  const calendarId = encodeURIComponent('en.usa#holiday@group.v.calendar.google.com');
+
   const { data } = useQuery({
     queryKey: ['AllDays', year, month],
     queryFn: fetchAllDays,
@@ -55,15 +59,28 @@ const Calendar = () => {
   });
 
   const { data: events, isLoading } = useQuery({
-    queryKey: ['events', token, year, month, activeDate],
-    queryFn: () => calenderEventsApi(year, month, token),
-    enabled: !!token && !!year && !!month,
+    queryKey: ['events', token, timeMin, timeMax, activeDate],
+    queryFn: () =>
+      getApiServices('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+        params: {
+          timeMin,
+          timeMax,
+          singleEvents: true,
+          orderBy: 'startTime',
+        },
+      }),
+    onSuccess: (res) => localStorage.setItem('googleEvents', JSON.stringify(res.data.items)),
+    select: (res) => res?.data?.items,
+    enabled: !!token && !!timeMin && !!timeMax,
     staleTime: 1000 * 60 * 60,
   });
+
   const { data: holidays } = useQuery({
-    queryKey: ['holidays', token],
-    queryFn: () => calendarHolidaysApi(token),
-    enabled: !!token,
+    queryKey: ['holidays', token, calendarId],
+    queryFn: () =>
+      getApiServices(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`),
+    enabled: !!token && !!calendarId,
+    select: (res) => res?.data?.items,
     staleTime: 1000 * 60 * 60,
   });
 
@@ -87,7 +104,9 @@ const Calendar = () => {
       <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'hidden' }}>
         <DateDisplayGrid sx={{ borderBottom: '1px solid #dadce0', flexShrink: 0 }}>
           {DAYS.map((day, index) => (
-            <Dayscontainer key={index}>{day}</Dayscontainer>
+            <Dayscontainer key={index} index={index}>
+              {day}
+            </Dayscontainer>
           ))}
         </DateDisplayGrid>
 
@@ -97,7 +116,7 @@ const Calendar = () => {
             flexGrow: 1,
           }}
         >
-          {data?.map((dateObj) => {
+          {data?.map((dateObj, index) => {
             const today = new Date();
             const isToday =
               dateObj?.date?.getFullYear() === today.getFullYear() &&
@@ -110,6 +129,7 @@ const Calendar = () => {
               <EventContainer
                 key={dateObj?.date?.toISOString()}
                 isActive={dateObj?.isActive}
+                index={index}
                 onClick={() => setActiveModalDate(isoDate)}
               >
                 <DateText isToday={isToday} isActive={dateObj?.isActive}>
